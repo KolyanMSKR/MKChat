@@ -12,7 +12,7 @@ import FirebaseDatabase
 
 class ChatLogController: UICollectionViewController, UITextFieldDelegate {
     
-    var user: User? {
+    var user: ChatUser? {
         didSet {
             navigationItem.title = user?.name
         }

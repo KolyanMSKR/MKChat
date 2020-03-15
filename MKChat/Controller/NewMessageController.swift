@@ -14,7 +14,7 @@ import FirebaseStorage
 class NewMessageController: UITableViewController {
     
     let cellID = "cellID"
-    var users = [User]()
+    var users = [ChatUser]()
     var messagesController: MessagesController?
 
     override func viewDidLoad() {
@@ -33,7 +33,7 @@ class NewMessageController: UITableViewController {
         ref.child("users").observe(.childAdded, with: { snapshot in
             
             if let dictionary = snapshot.value as? [String: AnyObject] {
-                let user = User()
+                let user = ChatUser()
                 user.id = snapshot.key
                 user.name = dictionary["name"] as? String
                 user.email = dictionary["email"] as? String

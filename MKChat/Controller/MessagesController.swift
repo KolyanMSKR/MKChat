@@ -101,7 +101,7 @@ class MessagesController: UITableViewController {
             })
     }
     
-    func showChatControllerFor(user: User) {
+    func showChatControllerFor(user: ChatUser) {
         let chatLogController = ChatLogController(collectionViewLayout: UICollectionViewFlowLayout())
         chatLogController.user = user
         self.navigationController?.pushViewController(chatLogController, animated: true)
@@ -109,15 +109,7 @@ class MessagesController: UITableViewController {
     
     @objc
     private func handleLogout() {
-        do {
-            try Auth.auth().signOut()
-        } catch let error {
-            print(error)
-        }
         
-        let loginController = LoginViewController()
-        loginController.messagesController = self
-        present(loginController, animated: true, completion: nil)
     }
     
     
