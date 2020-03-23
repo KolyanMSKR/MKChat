@@ -90,6 +90,7 @@ class LoginViewController: UIViewController {
     }()
     
     // MARK: - Lifecycle's methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -97,6 +98,7 @@ class LoginViewController: UIViewController {
     }
     
     // MARK: - UI's logic
+    
     private func setUI() {
         view.backgroundColor = #colorLiteral(red: 0, green: 0.4705658555, blue: 0, alpha: 1)
         
@@ -126,7 +128,22 @@ class LoginViewController: UIViewController {
         AuthService.shared.login(email: emailTextField.text, password: passwordTextField.text) { result in
             switch result {
             case .success(let user):
-                self.showAlert(title: "Success", message: "Sign-In")
+                self.showAlert(title: "Success", message: "Sign-In") {
+                    FirestoreService.shared.getUserData(user: user) { snapshot in
+                        switch snapshot {
+                        case .success(let chatUser):
+                            let tabBarController = TabBarController(currentUser: chatUser)
+                            let navController = UINavigationController(rootViewController: tabBarController)
+                            
+                            navController.modalPresentationStyle = .fullScreen
+                            self.present(navController, animated: true, completion: nil)
+                        case .failure(_):
+                            
+                            let navController = UINavigationController(rootViewController: SettingsViewController(currentUser: user))
+                            self.present(navController, animated: true, completion: nil)
+                        }
+                    }
+                }
             case .failure(let error):
                 self.showAlert(title: "Error", message: error.localizedDescription)
             }
@@ -138,7 +155,7 @@ class LoginViewController: UIViewController {
             switch result {
             case .success(let user):
                 self.showAlert(title: "Success", message: "Sign-Up") {
-                    self.present(SettingsViewController(), animated: true, completion: nil)
+                    self.present(SettingsViewController(currentUser: user), animated: true, completion: nil)
                 }
             case .failure(let error):
                 self.showAlert(title: "Error", message: error.localizedDescription)

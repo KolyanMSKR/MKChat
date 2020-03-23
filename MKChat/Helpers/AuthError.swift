@@ -19,7 +19,6 @@ extension AuthError: LocalizedError {
     
     var errorDescription: String? {
         switch self {
-            
         case .notFilled:
             return NSLocalizedString("Fill all fields", comment: "")
         case .invalidEmail:

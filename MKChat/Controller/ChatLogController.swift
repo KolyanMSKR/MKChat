@@ -11,7 +11,7 @@ import FirebaseAuth
 import FirebaseDatabase
 
 class ChatLogController: UICollectionViewController, UITextFieldDelegate {
-    
+    /*
     var user: ChatUser? {
         didSet {
             navigationItem.title = user?.name
@@ -97,6 +97,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate {
         handleSend()
         
         return true
-    }
+    }*/
     
 }

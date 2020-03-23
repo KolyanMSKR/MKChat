@@ -14,7 +14,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         FirebaseApp.configure()
@@ -22,11 +21,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         window?.backgroundColor = #colorLiteral(red: 0, green: 0.4705658555, blue: 0, alpha: 1)
-        window?.rootViewController = LoginViewController()
         
+        window?.rootViewController = UIViewController()
+        
+        if let user = Auth.auth().currentUser {
+            FirestoreService.shared.getUserData(user: user) { result in
+                switch result {
+                case .success(let chatUser):
+                    let tabBarController = TabBarController(currentUser: chatUser)
+                    let navController = UINavigationController(rootViewController: tabBarController)
+                    tabBarController.modalPresentationStyle = .fullScreen
+                    self.window?.rootViewController = navController
+                case .failure(_):
+                    self.window?.rootViewController = LoginViewController()
+                }
+            }
+        } else {
+            window?.rootViewController = LoginViewController()
+        }
         return true
     }
-
 
 }
 

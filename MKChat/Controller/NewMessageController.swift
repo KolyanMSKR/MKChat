@@ -12,7 +12,7 @@ import FirebaseDatabase
 import FirebaseStorage
 
 class NewMessageController: UITableViewController {
-    
+    /*
     let cellID = "cellID"
     var users = [ChatUser]()
     var messagesController: MessagesController?
@@ -90,5 +90,5 @@ class NewMessageController: UITableViewController {
             self.messagesController?.showChatControllerFor(user: user)
         }
     }
-
+*/
 }

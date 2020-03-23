@@ -7,8 +7,13 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class SettingsViewController: UIViewController {
+    
+    // MARK: - properties
+    
+    private let currentUser: User
     
     // MARK: - UI's elements
     
@@ -16,7 +21,6 @@ class SettingsViewController: UIViewController {
         let imageView = UIImageView(image: #imageLiteral(resourceName: "profile_photo"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
-        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(selectProfileImageAction)))
         imageView.isUserInteractionEnabled = true
         imageView.clipsToBounds = true
         
@@ -30,10 +34,10 @@ class SettingsViewController: UIViewController {
         present(picker, animated: true, completion: nil)
     }
     
-    private let firstNameLabel = UILabel(title: "First Name:")
-    private let secondNameLabel = UILabel(title: "Second Name:")
-    private let firstNameTextField = UITextField(borderStyle: .roundedRect, placeholder: "First Name")
-    private let secondNameTextField = UITextField(borderStyle: .roundedRect, placeholder: "Second name")
+    private let usernameLabel = UILabel(title: "Username:")
+    private let descriptionLabel = UILabel(title: "Status:")
+    private let usernameTextField = UITextField(borderStyle: .roundedRect, placeholder: "Username")
+    private let descriptionTextField = UITextField(borderStyle: .roundedRect, placeholder: "Status")
     
     private let sexSegmentedControl: UISegmentedControl = {
         let segment = UISegmentedControl(items: ["Male", "Female"])
@@ -53,7 +57,54 @@ class SettingsViewController: UIViewController {
             print("something's going wrong with sexSegmentedControl")
         }
     }
-
+    
+    let chatButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 5
+        button.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+        button.setTitleColor(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), for: .normal)
+        button.setTitle("Time to Chat!", for: .normal)
+        button.addTarget(self, action: #selector(chatButtonAction), for: .touchUpInside)
+        
+        return button
+    }()
+    @objc func chatButtonAction() {
+        FirestoreService.shared.saveProfileWith(
+            id: currentUser.uid,
+            email: currentUser.email!,
+            username: usernameTextField.text,
+            avatarImage: profileImageView.image,
+            description: descriptionTextField.text,
+            sex: sexSegmentedControl.titleForSegment(at: sexSegmentedControl.selectedSegmentIndex)) { result in
+                
+                switch result {
+                case .success(let chatUser):
+                    self.showAlert(title: "Success!", message: "Have a nice time ;-)") {
+                        let tabBarController = TabBarController(currentUser: chatUser)
+                        let navController = UINavigationController(rootViewController: tabBarController)
+                        navController.modalPresentationStyle = .fullScreen
+                        self.present(navController, animated: true, completion: nil)
+                    }
+                case .failure(let error):
+                    self.showAlert(title: "Error!", message: error.localizedDescription)
+                }
+        }
+        
+    }
+    
+    // MARK: - Inits
+    
+    init(currentUser: User) {
+        self.currentUser = currentUser
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Lifecycle's methods
     
     override func viewDidLoad() {
@@ -66,17 +117,21 @@ class SettingsViewController: UIViewController {
     func setUI() {
         view.backgroundColor = #colorLiteral(red: 0, green: 0.4705658555, blue: 0, alpha: 1)
         
-        firstNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        secondNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        firstNameTextField.translatesAutoresizingMaskIntoConstraints = false
-        secondNameTextField.translatesAutoresizingMaskIntoConstraints = false
+        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        usernameTextField.translatesAutoresizingMaskIntoConstraints = false
+        descriptionTextField.translatesAutoresizingMaskIntoConstraints = false
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(selectProfileImageAction))
+        profileImageView.addGestureRecognizer(tap)
         
         view.addSubview(profileImageView)
-        view.addSubview(firstNameLabel)
-        view.addSubview(firstNameTextField)
-        view.addSubview(secondNameLabel)
-        view.addSubview(secondNameTextField)
+        view.addSubview(usernameLabel)
+        view.addSubview(usernameTextField)
+        view.addSubview(descriptionLabel)
+        view.addSubview(descriptionTextField)
         view.addSubview(sexSegmentedControl)
+        view.addSubview(chatButton)
         
         setConstraints()
     }
@@ -91,32 +146,39 @@ class SettingsViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            firstNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            firstNameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 40)
+            usernameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            usernameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 40)
         ])
         
         NSLayoutConstraint.activate([
-            firstNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            firstNameTextField.topAnchor.constraint(equalTo: firstNameLabel.bottomAnchor, constant: 8),
-            firstNameTextField.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40)
+            usernameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            usernameTextField.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 8),
+            usernameTextField.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40)
         ])
         
         NSLayoutConstraint.activate([
-            secondNameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            secondNameLabel.topAnchor.constraint(equalTo: firstNameTextField.bottomAnchor, constant: 40)
+            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            descriptionLabel.topAnchor.constraint(equalTo: usernameTextField.bottomAnchor, constant: 40)
         ])
         
         NSLayoutConstraint.activate([
-            secondNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            secondNameTextField.topAnchor.constraint(equalTo: secondNameLabel.bottomAnchor, constant: 8),
-            secondNameTextField.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40)
+            descriptionTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            descriptionTextField.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 8),
+            descriptionTextField.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40)
         ])
         
         NSLayoutConstraint.activate([
             sexSegmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            sexSegmentedControl.topAnchor.constraint(equalTo: secondNameTextField.bottomAnchor, constant: 40),
+            sexSegmentedControl.topAnchor.constraint(equalTo: descriptionTextField.bottomAnchor, constant: 40),
             sexSegmentedControl.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -100),
             sexSegmentedControl.heightAnchor.constraint(equalToConstant: 50)
+        ])
+        
+        NSLayoutConstraint.activate([
+            chatButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            chatButton.topAnchor.constraint(equalTo: sexSegmentedControl.bottomAnchor, constant: 40),
+            chatButton.widthAnchor.constraint(equalToConstant: 150),
+            chatButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
 
@@ -128,7 +190,6 @@ class SettingsViewController: UIViewController {
 extension SettingsViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        print("picker cancel")
         dismiss(animated: true, completion: nil)
     }
     
