@@ -10,6 +10,7 @@ import Foundation
 import FirebaseFirestore
 
 struct MKChatUser: Hashable, Decodable {
+    
     var username: String
     var email: String
     var avatarStringURL: String
@@ -100,4 +101,5 @@ struct MKChatUser: Hashable, Decodable {
         
         return username.lowercased().contains(lowercasedFilter)
     }
+    
 }

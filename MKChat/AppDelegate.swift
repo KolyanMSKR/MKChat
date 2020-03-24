@@ -30,7 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 case .success(let chatUser):
                     let tabBarController = TabBarController(currentUser: chatUser)
                     let navController = UINavigationController(rootViewController: tabBarController)
-                    tabBarController.modalPresentationStyle = .fullScreen
+                    navController.modalPresentationStyle = .fullScreen
                     self.window?.rootViewController = navController
                 case .failure(_):
                     self.window?.rootViewController = LoginViewController()

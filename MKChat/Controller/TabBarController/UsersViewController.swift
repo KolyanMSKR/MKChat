@@ -9,9 +9,11 @@
 import UIKit
 import FirebaseFirestore
 
-class UsersViewController: UITableViewController {
+class UsersViewController: UIViewController {
     
     // MARK: - Properties
+    
+    private let tableView = UITableView()
     
     private let cellID = "cellID"
     private let db = Firestore.firestore()
@@ -43,36 +45,56 @@ class UsersViewController: UITableViewController {
                 self.showAlert(title: "Error", message: error.localizedDescription)
             }
         })
-        
-        
-        
-        
     }
     
     private func setupTableView() {
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellID)
+        tableView.dataSource = self
+        tableView.delegate = self
+        
+        view.addSubview(tableView)
+        
+        tableView.register(UserCell.self, forCellReuseIdentifier: cellID)
+        
+        setConstraints()
     }
     
-    // MARK: - UITableViewDatasource
+    private func setConstraints() {
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+}
+
+// MARK: - UITableViewDatasource
+
+extension UsersViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return users.count
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
-        
-        cell.textLabel?.text = users[indexPath.row].username
-        cell.detailTextLabel?.text = users[indexPath.row].description
-        
-        let url = URL(string: users[indexPath.row].avatarStringURL)
-        print("-------------------------------------------------------------------")
-        print(url)
-        print("-------------------------------------------------------------------")
-        let data = try? Data(contentsOf: url!)
-        cell.imageView?.image = UIImage(data: data!)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath) as! UserCell
+        let user = users[indexPath.row]
+        cell.user = user
         
         return cell
+    }
+    
+}
+
+// MARK: - UITableViewDelegate
+
+extension UsersViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80
     }
     
 }

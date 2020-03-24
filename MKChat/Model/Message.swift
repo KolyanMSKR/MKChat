@@ -9,8 +9,10 @@
 import Foundation
 
 class Message {
+    
     var fromID: String?
     var text: String?
     var timestamp: Double?
     var toID: String?
+    
 }
