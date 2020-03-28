@@ -38,7 +38,7 @@ class LoginViewController: UIViewController {
     }
     
     
-    lazy private var loginRegisterSegmentedControl: UISegmentedControl = {
+    private var loginRegisterSegmentedControl: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["Login", "Register"])
         sc.translatesAutoresizingMaskIntoConstraints = false
         sc.tintColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
@@ -48,8 +48,7 @@ class LoginViewController: UIViewController {
         
         return sc
     }()
-    @objc
-    private func handleLoginRegisterValueChange() {
+    @objc private func handleLoginRegisterValueChange() {
         title = loginRegisterSegmentedControl.titleForSegment(at: loginRegisterSegmentedControl.selectedSegmentIndex)!
         loginRegisterButton.setTitle(title, for: .normal)
     }
@@ -155,7 +154,9 @@ class LoginViewController: UIViewController {
             switch result {
             case .success(let user):
                 self.showAlert(title: "Success", message: "Sign-Up") {
-                    self.present(SettingsViewController(currentUser: user), animated: true, completion: nil)
+                    let settingsViewController = SettingsViewController(currentUser: user)
+                    settingsViewController.modalPresentationStyle = .fullScreen
+                    self.present(settingsViewController, animated: true, completion: nil)
                 }
             case .failure(let error):
                 self.showAlert(title: "Error", message: error.localizedDescription)

@@ -19,6 +19,8 @@ class FirestoreService {
         return db.collection("users")
     }
     
+    var currentUser: MKChatUser!
+    
     private init() {}
     
     func getUserData(user: User, completion: @escaping (Result<MKChatUser, Error>) -> Void) {
@@ -29,6 +31,7 @@ class FirestoreService {
                     completion(.failure(UserError.cannotUnwrapToMKChatUser))
                     return
                 }
+                self.currentUser = chatUser
                 completion(.success(chatUser))
             } else {
                 completion(.failure(UserError.cannonGetUserInfo))
@@ -66,7 +69,34 @@ class FirestoreService {
                 completion(.failure(error))
             }
         }
+    }
+    
+    func createChat(message: String, receiver: MKChatUser, completion: @escaping (Result<Void, Error>) -> Void) {
+        let chatRef = db.collection("users/\(receiver.id)/chats")
+        let messageRef = chatRef.document(currentUser.id).collection("messages")
         
+        let message = Message(user: currentUser, text: message)
+        
+        let chat = Chat(senderID: currentUser.id,
+                        senderUsername: currentUser.username,
+                        senderAvatarStringURL: currentUser.avatarStringURL,
+                        lastMessage: message.text)
+        
+        chatRef.document(currentUser!.id).setData(chat.representation) { error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            messageRef.addDocument(data: message.representation) { error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                completion(.success(Void()))
+            }
+        }
         
     }
     

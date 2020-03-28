@@ -26,6 +26,21 @@ class UsersViewController: UIViewController {
     
     private var usersListener: ListenerRegistration?
     
+    private let currentUser: MKChatUser
+    
+    //MARK: - inits
+    
+    init(currentUser: MKChatUser) {
+        self.currentUser = currentUser
+        super.init(nibName: nil, bundle: nil)
+        
+        title = currentUser.username
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     deinit {
         usersListener?.remove()
     }
@@ -92,6 +107,13 @@ extension UsersViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension UsersViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let friendUser = users[indexPath.row]
+        let chatLogController = ChatLogController(friendUser: friendUser)
+        
+        return (navigationController?.pushViewController(chatLogController, animated: true))!
+    }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80

@@ -28,6 +28,7 @@
 		844BC3BB241C42750054AE26 /* Extension+UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844BC3BA241C42750054AE26 /* Extension+UIViewController.swift */; };
 		844BC3BE241C638E0054AE26 /* Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844BC3BD241C638E0054AE26 /* Validator.swift */; };
 		844BC3C0241C65A90054AE26 /* AuthError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844BC3BF241C65A90054AE26 /* AuthError.swift */; };
+		844C3C12242FD25E0011E3EA /* ChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844C3C11242FD25E0011E3EA /* ChatCell.swift */; };
 		84551C22241DF52900A165DC /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84551C21241DF52900A165DC /* FirestoreService.swift */; };
 		84B818F22423084B00750493 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B818F12423084B00750493 /* StorageService.swift */; };
 		84BEE5F9241AE862003B06D2 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE5F8241AE862003B06D2 /* SettingsViewController.swift */; };
@@ -62,6 +63,7 @@
 		844BC3BA241C42750054AE26 /* Extension+UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+UIViewController.swift"; sourceTree = "<group>"; };
 		844BC3BD241C638E0054AE26 /* Validator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
 		844BC3BF241C65A90054AE26 /* AuthError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthError.swift; sourceTree = "<group>"; };
+		844C3C11242FD25E0011E3EA /* ChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCell.swift; sourceTree = "<group>"; };
 		84551C21241DF52900A165DC /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
 		84B818F12423084B00750493 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		84BEE5F8241AE862003B06D2 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
@@ -105,6 +107,7 @@
 			isa = PBXGroup;
 			children = (
 				84482CDC2427D9750072C047 /* UserCell.swift */,
+				844C3C11242FD25E0011E3EA /* ChatCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -344,6 +347,7 @@
 				844BC3BE241C638E0054AE26 /* Validator.swift in Sources */,
 				84156C3A241F1E7E00A339D7 /* TabBarController.swift in Sources */,
 				4E7FDF5D23F5ED7700C45C4B /* ChatLogController.swift in Sources */,
+				844C3C12242FD25E0011E3EA /* ChatCell.swift in Sources */,
 				84551C22241DF52900A165DC /* FirestoreService.swift in Sources */,
 				844BC3BB241C42750054AE26 /* Extension+UIViewController.swift in Sources */,
 				4E88E01823EFA6E3000651AE /* MKChatUser.swift in Sources */,

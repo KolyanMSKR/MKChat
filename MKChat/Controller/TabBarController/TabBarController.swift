@@ -42,7 +42,7 @@ class TabBarController: UITabBarController {
         let chatsViewController = ChatsController(currentUser: currentUser)
         chatsViewController.tabBarItem = UITabBarItem(tabBarSystemItem: .bookmarks, tag: 0)
         
-        let usersViewController = UsersViewController()
+        let usersViewController = UsersViewController(currentUser: currentUser)
         usersViewController.tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: 1)
         
         viewControllers = [chatsViewController, usersViewController]
