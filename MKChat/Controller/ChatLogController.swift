@@ -10,9 +10,16 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class ChatLogController: UICollectionViewController, UITextFieldDelegate {
+class ChatLogController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
+    let currentUser = Auth.auth().currentUser!
     var friendUser: MKChatUser!
+    var messages: [Message] = [] {
+        didSet {
+            self.messages.sort(by: <)
+            collectionView.reloadData()
+        }
+    }
     
     private let inputTextField = UITextField()
     
@@ -29,40 +36,33 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
-    var messages: [Message] = []
-    
-    
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return messages.count
-    }
-    
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath as IndexPath)
-        cell.backgroundColor = .cyan
-        
-        
-        return cell
-    }
-    
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-        return CGSize(width: 50, height: 50)
-    }
-    
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-    }
-    
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // MARK: - Lifecycle's methods
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "collectionCell")
+        collectionView!.register(MessageCell.self, forCellWithReuseIdentifier: MessageCell.cellID)
         collectionView.backgroundColor = #colorLiteral(red: 0.721568644, green: 0.8862745166, blue: 0.5921568871, alpha: 1)
+        collectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
         
         setupInputComponents()
+        
+        observeMessages()
+    }
+    
+    func observeMessages() {
+        Firestore.firestore().collection("users").document(friendUser.id).collection("chats").document(currentUser.uid).collection("messages").addSnapshotListener { snapshot, error  in
+            
+            snapshot?.documentChanges.forEach({ diff in
+                guard let message = Message(document: diff.document) else {
+                    return
+                }
+                
+                if diff.type == .added {
+                    self.messages.append(message)
+                }
+            })
+        }
     }
     
     private func setupInputComponents() {
@@ -109,52 +109,107 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate {
     }
     
     @objc private func handleSend() {
-        
         guard let message = inputTextField.text, message != "" else { return }
         
         FirestoreService.shared.createChat(message: message, receiver: friendUser) { result in
             switch result {
             case .success:
+                self.inputTextField.text = ""
                 self.showAlert(title: "Yeah!", message: "Check Firebase Firestore!")
                 break
             case .failure(_):
                 self.showAlert(title: "Error!", message: "Try to write a message later!")
             }
         }
+    }
+    
+}
+
+// MARK: - UICollectionViewDataSource
+
+extension ChatLogController {
+    
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return messages.count
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MessageCell.cellID, for: indexPath as IndexPath) as! MessageCell
+        
+        cell.textView.text = messages[indexPath.row].text
+        cell.bubbleViewWidthAnchor.constant = estimateFrameFor(text: messages[indexPath.row].text).width + 30
         
         
-        /*let ref = Database.database().reference().child("messages")
-        let childRef = ref.childByAutoId()
-        let toID = chatUser!.id
-        let fromID = Auth.auth().currentUser!.uid
-        let timestamp = Date().timeIntervalSince1970
-        let values = ["text": inputTextField.text!, "toID": toID, "fromID": fromID, "timestamp": timestamp] as [String : Any]
-        //childRef.updateChildValues(values)
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        childRef.updateChildValues(values) { error, ref in
-            if error != nil {
-                print(error)
-                return
+        if indexPath.row % 2 == 0 {
+            
+            if messages[indexPath.row].senderID == currentUser.uid {
+                cell.bubbleViewTrailingAnchor.isActive = false
+                cell.bubbleViewLeadingAnchor.isActive = true
+                
+                cell.bubbleView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
             }
             
-            let userMessagesRef = Database.database().reference().child("user-messages").child(fromID)
+        } else {
+            cell.bubbleViewTrailingAnchor.isActive = true
+            cell.bubbleViewLeadingAnchor.isActive = false
             
-            let messageID = childRef.key
-            userMessagesRef.updateChildValues([messageID: 1])
-        }*/
+            cell.bubbleView.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+        }
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        
+        return cell
     }
+    
+}
+
+// MARK: - UICollectionViewDelegateFlowLayout
+
+extension ChatLogController {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        
+        var height: CGFloat = 40.0
+        let text = messages[indexPath.row].text
+//        height = estimateFrameFor(text: text).height + 18
+        height = messages[indexPath.row].text.height(width: 300, font: .systemFont(ofSize: 14)) + 18
+        
+        
+        return CGSize(width: collectionView.bounds.width, height: height)
+    }
+    
+    func estimateFrameFor(text: String) -> CGRect {
+        let size = CGSize(width: view.frame.width * 2/3, height: 1000)
+        
+        return NSString(string: text).boundingRect(with: size, options: .usesLineFragmentOrigin, attributes: [.font: UIFont.systemFont(ofSize: 14)], context: nil)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 5
+    }
+    
+}
+
+// MARK: - UITextFieldDelegate
+
+extension ChatLogController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         handleSend()
         
         return true
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        return CGSize.init(width: view.frame.width, height: 250)
     }
     
 }

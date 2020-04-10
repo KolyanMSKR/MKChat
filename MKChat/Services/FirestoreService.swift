@@ -80,7 +80,8 @@ class FirestoreService {
         let chat = Chat(senderID: currentUser.id,
                         senderUsername: currentUser.username,
                         senderAvatarStringURL: currentUser.avatarStringURL,
-                        lastMessage: message.text)
+                        lastMessage: message.text,
+                        timestamp: message.timestamp)
         
         chatRef.document(currentUser!.id).setData(chat.representation) { error in
             if let error = error {

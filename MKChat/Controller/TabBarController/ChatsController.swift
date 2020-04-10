@@ -21,6 +21,7 @@ class ChatsController: UIViewController {
     
     var chats: [Chat] = [] {
         didSet {
+            self.chats.sort(by: >)
             tableView.reloadData()
         }
     }
@@ -105,11 +106,14 @@ extension ChatsController: UITableViewDataSource {
         
         cell.nameLabel.text = chats[indexPath.row].lastMessage
         cell.messageLabel.text = chats[indexPath.row].senderUsername
-        //cell.timestampLabel.text = Date(timeIntervalSince1970: postTimestamp.seconds)
         
-        let url = URL(string: chats[indexPath.row].senderAvatarStringURL)!
-        let data = try? Data(contentsOf: url)
-        cell.profileImageView.image = UIImage(data: data!)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        let date = Date(timeIntervalSince1970: TimeInterval(chats[indexPath.row].timestamp.seconds))
+        let dateString = formatter.string(from: date)
+        
+        cell.timestampLabel.text = dateString
+        cell.profileImageView.downloadImage(from: chats[indexPath.row].senderAvatarStringURL)
         
         return cell
     }

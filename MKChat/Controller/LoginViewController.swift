@@ -138,8 +138,11 @@ class LoginViewController: UIViewController {
                             self.present(navController, animated: true, completion: nil)
                         case .failure(_):
                             
-                            let navController = UINavigationController(rootViewController: SettingsViewController(currentUser: user))
-                            self.present(navController, animated: true, completion: nil)
+                            let settingsViewController = SettingsViewController(currentUser: user)
+                            settingsViewController.modalPresentationStyle = .fullScreen
+                            /*let navController = UINavigationController(rootViewController: SettingsViewController(currentUser: user))
+                            navController.modalPresentationStyle = .fullScreen*/
+                            self.present(settingsViewController, animated: true, completion: nil)
                         }
                     }
                 }
