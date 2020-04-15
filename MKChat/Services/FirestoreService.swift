@@ -83,7 +83,39 @@ class FirestoreService {
                         lastMessage: message.text,
                         timestamp: message.timestamp)
         
-        chatRef.document(currentUser!.id).setData(chat.representation) { error in
+        /*chatRef.document(currentUser!.id).setData(chat.representation) { error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            messageRef.addDocument(data: message.representation) { error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                completion(.success(Void()))
+            }
+        }*/
+        
+        db.collection("users/\(receiver.id)/chats").document(currentUser!.id).setData(chat.representation) { error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            messageRef.addDocument(data: message.representation) { error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                completion(.success(Void()))
+            }
+        }
+        
+        db.collection("users/\(currentUser.id)/chats").document(receiver.id).setData(chat.representation) { error in
             if let error = error {
                 completion(.failure(error))
                 return

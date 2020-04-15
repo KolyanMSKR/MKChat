@@ -142,19 +142,14 @@ extension ChatLogController {
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        if indexPath.row % 2 == 0 {
-            
-            if messages[indexPath.row].senderID == currentUser.uid {
-                cell.bubbleViewTrailingAnchor.isActive = false
-                cell.bubbleViewLeadingAnchor.isActive = true
-                
-                cell.bubbleView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
-            }
-            
+        
+        if messages[indexPath.row].senderID == currentUser.uid {
+            cell.bubbleViewTrailingAnchor.isActive = false
+            cell.bubbleViewLeadingAnchor.isActive = true
+            cell.bubbleView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
         } else {
             cell.bubbleViewTrailingAnchor.isActive = true
             cell.bubbleViewLeadingAnchor.isActive = false
-            
             cell.bubbleView.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
         }
         
@@ -171,13 +166,9 @@ extension ChatLogController {
 extension ChatLogController {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        
         var height: CGFloat = 40.0
         let text = messages[indexPath.row].text
-//        height = estimateFrameFor(text: text).height + 18
-        height = messages[indexPath.row].text.height(width: 300, font: .systemFont(ofSize: 14)) + 18
-        
+        height = estimateFrameFor(text: text).height + 18
         
         return CGSize(width: collectionView.bounds.width, height: height)
     }
